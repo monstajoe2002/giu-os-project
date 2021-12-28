@@ -62,28 +62,15 @@ public class CPUScheduler {
         result="";
         splitInput(input);
         String newArr[] = new String[]{};
-        if(input.equals("A,B,C,D,E;0,2,4,5,8;3,6,4,5,2"))
-        {
-            result = "A(3),B(6),E(2),C(4),D(5)";
-        }
-        else if(input.equals("Hi,Bye;0,0;4,2"))
-        {
-            result = "Bye(2),Hi(4)";
-        }
+        String start=arrivalTimes[0];
+
         return result;
     }
     public static String Scheduler_RR(String input) {
         result="";
         splitInput(input);
-        String newArr[] = new String[]{};
-        if(input.equals("A,B,C,D,E;0,2,4,5,8;3,6,4,5,2"))
-        {
-            result = "A(2),B(2),A(1),C(2),B(2),D(2),C(2),E(2),B(2),D(3)";
-        }
-        else if(input.equals("Hi,Bye;0,0;4,2"))
-        {
-            result = "Hi(2),Bye(2),Hi(2)";
-        }
+
+
         return result;
 
     }
@@ -91,6 +78,16 @@ public class CPUScheduler {
         String test1=Scheduler_FCFS("A,B,C,D,E;0,2,4,5,8;3,6,4,5,2");
         String test2=Scheduler_FCFS("Hi,Bye;0,0;4,2");
         String test3=Scheduler_SJF("Hi,Bye;0,0;4,2");
+        String test4=Scheduler_SJF("A,B,C,D,E;0,2,4,5,8;3,6,4,5,2");
+        String test5=Scheduler_RR("A,B,C,D,E;0,2,4,5,8;3,6,4,5,2");
+        String test6=Scheduler_RR("Hi,Bye;0,0;4,2");
+        System.out.println(test1);
+        System.out.println(test2);
+        System.out.println(test3);
+        System.out.println(test4);
+        System.out.println(test5);
+        System.out.println(test6);
+
 
     }
 
