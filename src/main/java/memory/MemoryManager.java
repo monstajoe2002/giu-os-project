@@ -157,6 +157,5 @@ public class MemoryManager {
                 "src\\main\\java\\memory\\test2\\MEMORYFILE.txt",
                 "src\\main\\java\\memory\\test2\\VIRTUALMEMORY.txt");
         memoryManager1.intializeMemory();
-
     }
 }
