@@ -114,6 +114,5 @@ public class MemoryManager {
                 "src\\main\\java\\memory\\test2\\VIRTUALMEMORY.txt");
 
 
-
     }
 }
