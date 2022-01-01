@@ -11,7 +11,6 @@ public class MemoryManager {
     private File PhyicalMemoryFile;
     private File VirtMemoryFile;
     private static Stack<Object> memStack = new Stack<>();
-    private static Hashtable<Integer, String> memoryPhysical=new Hashtable<>();
     private static String[] info;
 
     /*constructor initializes all 3 variables
@@ -95,26 +94,21 @@ public class MemoryManager {
 
         String data = "";
         String [] temp;
+        List<HashMap<Integer, String>> items= new ArrayList<>();
         if (PhyicalMemoryFile.exists()) {
             try {
                 Scanner myReader = new Scanner(PhyicalMemoryFile);
                 while (myReader.hasNextLine()) {
                     data += myReader.nextLine() + "\n";
                 }
+
                 myReader.close();
                 temp=data.split("\n");
-                String[][] temp2=new String[temp.length][];
-                for(int i=0; i<temp.length; i++)
-                {
-                    temp2[i]=temp[i].split("( )");
+                for (int i=0; i<temp.length; i++) {
+                    items.add(createPhysicalMemory(temp[i]));
                 }
-                for(int i=0; i<temp2.length; i++)
-                {
-                   for(int j=1;j<temp2[i].length;j++)
-                       memoryPhysical.put(Integer.parseInt(temp2[i][0]),temp2[i][j]);
-                }
-                System.out.println(memoryPhysical);
 
+//                System.out.println(items);
             } catch (FileNotFoundException e) {
                 System.out.println("An error occurred.");
                 e.printStackTrace();
@@ -122,7 +116,14 @@ public class MemoryManager {
         }
         return data;
     }
-
+    private static HashMap<Integer, String> createPhysicalMemory(String s) {
+        int splitIndex = s.indexOf(" ");
+        String key = s.substring(0, splitIndex);
+        String value = s.substring(splitIndex);
+        HashMap<Integer, String> memoryPhysical = new HashMap<>();
+        memoryPhysical.put(Integer.parseInt(key), value);
+        return memoryPhysical;
+    }
     public String readVirtMemory() {
         String data = "";
 
@@ -157,5 +158,6 @@ public class MemoryManager {
                 "src\\main\\java\\memory\\test2\\MEMORYFILE.txt",
                 "src\\main\\java\\memory\\test2\\VIRTUALMEMORY.txt");
         memoryManager1.intializeMemory();
+
     }
 }
