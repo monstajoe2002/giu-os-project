@@ -161,7 +161,6 @@ public class MemoryManager {
         }
         memoryVirtual = data.split("\n");
 
-
         return data;
     }
 
