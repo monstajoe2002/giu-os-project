@@ -11,7 +11,10 @@ public class MemoryManager {
     private File PhyicalMemoryFile;
     private File VirtMemoryFile;
     private static Stack<Object> memStack = new Stack<>();
-    private static String[] info;
+    static HashMap<Integer, String> memoryPhysical;
+    static String[] memoryVirtual = new String[10];
+    static String[][] info;
+
 
     /*constructor initializes all 3 variables
          with their respective files*/
@@ -80,21 +83,25 @@ public class MemoryManager {
                     data += myReader.nextLine() + "\n";
                 }
                 myReader.close();
-                info = data.split("(\n)|( )");
+                String[] temp = data.split("(\n)");
+                info = new String[temp.length][];
+                for (int i = 0; i < temp.length; i++) {
+                    info[i] = temp[i].split(" ");
+                }
 
             } catch (FileNotFoundException e) {
                 System.out.println("An error occurred.");
                 e.printStackTrace();
             }
         }
+
         return data;
     }
 
     public String readPhysicalMemory() {
 
         String data = "";
-        String [] temp;
-        List<HashMap<Integer, String>> items= new ArrayList<>();
+        String[] temp;
         if (PhyicalMemoryFile.exists()) {
             try {
                 Scanner myReader = new Scanner(PhyicalMemoryFile);
@@ -103,12 +110,20 @@ public class MemoryManager {
                 }
 
                 myReader.close();
-                temp=data.split("\n");
-                for (int i=0; i<temp.length; i++) {
-                    items.add(createPhysicalMemory(temp[i]));
+
+                temp = data.split("\n"); //split the data string by line
+
+                for (int i = 0; i < temp.length; i++) {
+                    createPhysicalMemory(temp[i]);
+                    /*method call to give every
+                     element in the temp array a
+                    key-value pair by splitting both
+                    into 2 substrings*/
+                    //e.g. ["54286 inc %71263"] becomes {54286= inc %71263}
+
                 }
 
-//                System.out.println(items);
+
             } catch (FileNotFoundException e) {
                 System.out.println("An error occurred.");
                 e.printStackTrace();
@@ -116,14 +131,18 @@ public class MemoryManager {
         }
         return data;
     }
+
     private static HashMap<Integer, String> createPhysicalMemory(String s) {
         int splitIndex = s.indexOf(" ");
         String key = s.substring(0, splitIndex);
         String value = s.substring(splitIndex);
-        HashMap<Integer, String> memoryPhysical = new HashMap<>();
+        memoryPhysical = new HashMap<>();
         memoryPhysical.put(Integer.parseInt(key), value);
+//        System.out.println(memoryPhysical);
         return memoryPhysical;
     }
+
+
     public String readVirtMemory() {
         String data = "";
 
@@ -133,19 +152,32 @@ public class MemoryManager {
                 while (myReader.hasNextLine()) {
                     data += myReader.nextLine() + "\n";
                 }
+
                 myReader.close();
             } catch (FileNotFoundException e) {
 
             }
 
         }
+        memoryVirtual = data.split("\n");
+
+
         return data;
     }
 
     public void intializeMemory() throws IOException {
-        readInfo();
-        readPhysicalMemory();
 
+        boolean flag = true;
+        readInfo();
+        readVirtMemory();
+        readPhysicalMemory();
+        getPhysicalAddress(2,Integer.parseInt(memoryVirtual[0].substring(3)));
+    }
+
+    public void getPhysicalAddress(int index, int virtualAddress) {
+         int physicalAddress = -1;
+         physicalAddress =virtualAddress+Integer.parseInt(info[index][info[index].length-1]); //base is the last element of the nth subarray
+         System.out.println(physicalAddress);
     }
 
     //driver main() method,
@@ -158,6 +190,7 @@ public class MemoryManager {
                 "src\\main\\java\\memory\\test2\\MEMORYFILE.txt",
                 "src\\main\\java\\memory\\test2\\VIRTUALMEMORY.txt");
         memoryManager1.intializeMemory();
+
 
     }
 }
