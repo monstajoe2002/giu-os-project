@@ -10,9 +10,11 @@ public class MemoryManager {
     private File InfoFile;
     private File PhyicalMemoryFile;
     private File VirtMemoryFile;
+    private File output;
     private static Stack<Object> memStack = new Stack<>();
-    static HashMap<Integer, String> memoryPhysical;
-    static String[] memoryVirtual = new String[10];
+    static HashMap<Integer, String>  memoryPhysical;
+    ;
+    static String[] memoryVirtual = new String[]{};
     static String[][] info;
 
 
@@ -22,6 +24,7 @@ public class MemoryManager {
         InfoFile = new File(info);
         PhyicalMemoryFile = new File(physMemory);
         VirtMemoryFile = new File(virtMemory);
+        memoryPhysical = new HashMap<>();
     }
 
     public File getInfoFile() {
@@ -49,7 +52,7 @@ public class MemoryManager {
     }
 
     public void createOutputFile() {
-        File output = new File("src\\main\\java\\memory\\OUTPUT.txt");
+        output = new File("src\\main\\java\\memory\\OUTPUT.txt");
         try {
             if (output.createNewFile()) {
                 System.out.println("File created successfully");
@@ -61,14 +64,16 @@ public class MemoryManager {
 
     public void writeToFile(String s) {
         try {
-            FileWriter fileWriter = new FileWriter("src\\main\\java\\memory\\OUTPUT.txt");
-            fileWriter.write(s);
+            FileWriter fileWriter = new FileWriter(output, true);
+            fileWriter.write(s + "\n");
             fileWriter.close();
             System.out.println("Data saved to file.");
+
         } catch (IOException e) {
             System.out.println("Error");
             e.printStackTrace();
         }
+
     }
 
     public String readInfo() throws IOException {
@@ -136,12 +141,15 @@ public class MemoryManager {
         int splitIndex = s.indexOf(" ");
         String key = s.substring(0, splitIndex);
         String value = s.substring(splitIndex);
-        memoryPhysical = new HashMap<>();
+
         memoryPhysical.put(Integer.parseInt(key), value);
 //        System.out.println(memoryPhysical);
         return memoryPhysical;
     }
+    private static HashMap<Integer, String> createPhysicalMemory() {
 
+        return memoryPhysical;
+    }
 
     public String readVirtMemory() {
         String data = "";
@@ -164,19 +172,79 @@ public class MemoryManager {
         return data;
     }
 
-    public void intializeMemory() throws IOException {
-
-        boolean flag = true;
+    public void run() throws IOException {
+        String s,out = "";
+        int oldVal,newVal=-1;
         readInfo();
         readVirtMemory();
         readPhysicalMemory();
-        getPhysicalAddress(2,Integer.parseInt(memoryVirtual[0].substring(3)));
+        createOutputFile();
+        createPhysicalMemory();
+        if(output.exists())
+        {
+            output.delete();
+        }
+        else
+            createOutputFile();
+
+        for (int i = 1; i < info.length; i++) {
+            for (int j = 0; j<memoryVirtual.length; j++) {
+                s = memoryPhysical.get(getPhysicalAddress(i, Integer.parseInt(memoryVirtual[i].substring(3))));
+                out="FETCH VIRTUAL MEMORY " + memoryVirtual[j] + "-> PHYSICAL MEMORY " + getPhysicalAddress(i, Integer.parseInt(memoryVirtual[j].substring(3))) +
+                        "\n" + "EXECUTE" + s+"\n";
+
+                String [] execution=s.split("( )|(,)");
+                if(info[i-1][i].startsWith("CODE_SEGMENT"))
+                {
+                    if (s.contains("mov"))
+                    {
+                        if(execution[execution.length-1].contains("%"))
+                        {
+                            out+="RESULT"+memoryPhysical.get(Integer.parseInt(execution[execution.length-1].substring(1)))+ " STORED AT LOCATION "+execution[2]+"\n";
+                        }
+                        else
+                            out+="RESULT"+execution[execution.length-1]+ " STORED AT LOCATION "+execution[2]+"\n";
+                    }
+                    else if (s.contains("add"))
+                    {
+
+                        oldVal=Integer.parseInt(memoryPhysical.get(execution[execution.length-1].substring(1)));
+                        newVal=oldVal+Integer.parseInt(execution[execution.length-1]);
+                        out+="RESULT "+Integer.toString(newVal)+ " STORED AT LOCATION "+execution[2]+"\n";
+                    }
+                    else if (s.contains("sub"))
+                    {
+                        oldVal=Integer.parseInt(memoryPhysical.get(execution[execution.length-1].substring(1)));
+                        newVal=oldVal-Integer.parseInt(execution[execution.length-1]);
+                        out+="RESULT "+Integer.toString(newVal)+ " STORED AT LOCATION "+execution[2]+"\n";
+                    }
+                    else if (s.contains("inc"))
+                    {
+                        oldVal=Integer.parseInt(memoryPhysical.get(execution[execution.length-1].substring(1)));
+                        newVal=oldVal++;
+                        out+="RESULT "+Integer.toString(newVal)+ " STORED AT LOCATION "+execution[2]+"\n";
+                    }
+                    else if (s.contains("dec"))
+                    {
+                        oldVal=Integer.parseInt(memoryPhysical.get(execution[execution.length-1].substring(1)));
+                        newVal=oldVal--;
+                        out+="RESULT "+Integer.toString(newVal)+ " STORED AT LOCATION "+execution[2]+"\n";
+                    }
+                }
+                writeToFile(out);
+
+            }
+
+        }
+
+
+
     }
 
-    public void getPhysicalAddress(int index, int virtualAddress) {
-         int physicalAddress = -1;
-         physicalAddress =virtualAddress+Integer.parseInt(info[index][info[index].length-1]); //base is the last element of the nth subarray
-         System.out.println(physicalAddress);
+    public int getPhysicalAddress(int index, int virtualAddress) {
+        int physicalAddress = -1;
+        physicalAddress = virtualAddress + Integer.parseInt(info[index][info[index].length - 1]); //base is the last element of the nth subarray
+        return physicalAddress;
     }
 
     //driver main() method,
@@ -188,8 +256,6 @@ public class MemoryManager {
         MemoryManager memoryManager2 = new MemoryManager("src\\main\\java\\memory\\test2\\INFOFILE.txt",
                 "src\\main\\java\\memory\\test2\\MEMORYFILE.txt",
                 "src\\main\\java\\memory\\test2\\VIRTUALMEMORY.txt");
-        memoryManager1.intializeMemory();
-
 
     }
 }
